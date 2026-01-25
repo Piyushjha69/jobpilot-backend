@@ -1,4 +1,4 @@
-import pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import ResumeModel, {type Iresume} from "./model.js";
 
 interface UploadResumeInput {
@@ -13,8 +13,8 @@ export const uploadResumeService = async (
     const { userId, fileBuffer, originalFileName } = input;
 
     //Parse PDF
-    const parsed = await pdfParse(fileBuffer);
-    const extractedText = parsed.text;
+    const parsed = await new PDFParse(fileBuffer);
+    const extractedText = await parsed.getText();
     if(!extractedText){
         throw new Error("Failed to extract text from PDF");
     }
@@ -23,7 +23,7 @@ export const uploadResumeService = async (
     const resume = await ResumeModel.create({
         userId,
         name: originalFileName,
-        text: extractedText
+        text: extractedText.text
     });
 
     return resume;
