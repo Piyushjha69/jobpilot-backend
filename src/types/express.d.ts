@@ -1,5 +1,11 @@
-export interface MatchResult {
-    score: number;
-    strengths: string[];
-    gaps: string[];
+import "express";
+
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                id: string;
+            }
+        }
+    }
 }
