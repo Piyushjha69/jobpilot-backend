@@ -64,8 +64,13 @@ export const updateApplicationStatusController = async (
             return;
         }
 
+        if(typeof Id !== 'string'){
+            res.status(400).json({ message: "Invalid application ID" });
+            return;
+        }
+        
         const updated = await UpdateApplicationStatusService(
-            id,
+            Id,
             status as ApplicationStatus
         );
 
