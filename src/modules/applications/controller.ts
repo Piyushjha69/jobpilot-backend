@@ -1,4 +1,5 @@
 import { type Request, type Response } from 'express';
+import { Types } from 'mongoose';
 import {
     CreateApplicationService,
     getUserApplicationsService,
@@ -11,15 +12,16 @@ export const createApplicationController = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { jobTitle, company, jobUrl, resumeId } = req.body;
+        const { jobTitle, jobId, company, jobUrl, resumeId } = req.body;
 
-        if (!jobTitle || !company || !jobUrl || !resumeId) {
+        if (!jobTitle || !jobId || !company || !jobUrl || !resumeId) {
             res.status(400).json({ message: "All fields are required" });
             return;
         }
 
         const application = await CreateApplicationService({
             userId: req.user!.id,
+            jobId: new Types.ObjectId(jobId),
             jobTitle,
             company,
             jobUrl,

@@ -2,9 +2,11 @@ import ApplicationModel, {
     type IApplication,
     type ApplicationStatus
 } from "./model.js";
+import { Types } from "mongoose";
 
 interface CreateApplicationInput {
     userId: string;
+    jobId: Types.ObjectId;
     jobTitle: string;
     company: string;
     jobUrl: string;
@@ -14,6 +16,15 @@ interface CreateApplicationInput {
 export const CreateApplicationService = async (
     input: CreateApplicationInput
 ): Promise<IApplication> => {
+    const existing = await ApplicationModel.findOne({
+        userId: input.userId,
+        jobId: input.jobId
+    });
+
+    if (existing) {
+        return existing;
+    }
+    
     const application = await ApplicationModel.create({
         ...input,
         status: "SAVED",
@@ -24,7 +35,9 @@ export const CreateApplicationService = async (
 export const getUserApplicationsService = async (
     userId: string
 ): Promise<IApplication[]> => {
-    return ApplicationModel.find({ userId }).sort({ createdAt: -1 });
+    return ApplicationModel.find({ userId })
+    .populate("jobId")
+    .sort({ createdAt: -1 });
 };
 
 export const UpdateApplicationStatusService = async (

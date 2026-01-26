@@ -1,4 +1,4 @@
-import {Schema, model, Document } from 'mongoose';
+import {Schema, model, Document, Types } from 'mongoose';
 
 export type ApplicationStatus = 
 | "SAVED"
@@ -9,6 +9,7 @@ export type ApplicationStatus =
 
 export interface IApplication extends Document {
     userId: string;
+    jobId: Types.ObjectId;
     jobTitle: string;
     company: string;
     jobUrl: string;
@@ -21,6 +22,7 @@ export interface IApplication extends Document {
 
 const ApplicationSchema = new Schema<IApplication>({
     userId: { type: String, required: true , index: true },
+    jobId: { type: Schema.Types.ObjectId, ref: "Job", required: true },
     jobTitle: { type: String, required: true},
     company: {type: String, required: true},
     jobUrl: { type: String, required: true},
