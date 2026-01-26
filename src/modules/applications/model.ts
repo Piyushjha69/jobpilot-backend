@@ -14,6 +14,8 @@ export interface IApplication extends Document {
     company: string;
     jobUrl: string;
     resumeId: string;
+    matchScore: number;
+    matchSummary: string;
     status: ApplicationStatus;
     appliedAt?: Date;
     createdAt: Date;
@@ -27,6 +29,8 @@ const ApplicationSchema = new Schema<IApplication>({
     company: {type: String, required: true},
     jobUrl: { type: String, required: true},
     resumeId: { type: String, required: true},
+    matchScore: { type: Number, default: 0 },
+    matchSummary: { type: String, default: "" },
     status: {type: String, enum: ["SAVED", "APPLIED", "INTERVIEW", "REJECTED", "OFFER"], default: "SAVED"},
     appliedAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
