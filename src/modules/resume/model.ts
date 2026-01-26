@@ -4,6 +4,7 @@ export interface Iresume extends Document {
     userId: string;
     name: string;
     text: string;
+    embedding?: number[];
     email: string;
     skills: string[];
     experience: Array<{
@@ -19,6 +20,7 @@ const resumeSchema = new Schema<Iresume>({
     userId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     text: { type: String, required: true },
+    embedding: { type: [Number] },
     email: { type: String, required: true, unique: true },
     skills: { type: [String], required: true },
     experience: {

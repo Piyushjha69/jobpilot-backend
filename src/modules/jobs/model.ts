@@ -7,6 +7,7 @@ export interface IJob extends Document {
     description: string;
     applyUrl: string;
     source: string;
+    embedding?: number[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -19,6 +20,7 @@ const JobSchema = new Schema<IJob>(
         description: {type: String, required: true },
         applyUrl: {type: String, required: true, unique: true },
         source: {type: String, required: true },
+        embedding: {type: [Number]},
         createdAt: {type: Date, default: Date.now},
         updatedAt: {type: Date, default: Date.now}
     },

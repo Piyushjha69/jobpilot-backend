@@ -1,18 +1,18 @@
-export const calculateMatchScore = (
-    resumeText: string,
-    jobText: string
-): { score: number; summary: string } => {
-    const resumeWords = resumeText.toLowerCase().split(/\W+/);
-    const jobWords = jobText.toLowerCase().split(/\W+/);
+import { getEmbedding } from "./embeddings.js"
+import { cosineSimilarity } from "./similarity.js";
 
-    const common = resumeWords.filter(word => jobWords.includes(word));
-    const score = Math.min(
-        100,
-        Math.round((common.length / jobWords.length) * 100)
-    );
+export const calculateMatchFromEmbeddings =  (
+    resumeEmbedding: number[],
+    jobEmbedding: number[]
+) => {
+    const similarity = cosineSimilarity(resumeEmbedding, jobEmbedding);
 
     return {
-        score,
-        summary: `Matched ${common.length} relevant keywords`
-    };
+        score: Math.round(similarity * 100),
+        summary: similarity > 0.7
+            ? "Strong match based on skills and experience."
+            : similarity > 0.4
+            ? "Moderate match, some skills align."
+            : "Weak match, missing key skills."
+    };   
 };

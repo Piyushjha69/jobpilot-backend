@@ -1,6 +1,6 @@
 import ResumeModel from "../resume/model.js";
 import JobModel from "../jobs/model.js";
-import { calculateMatchScore } from "../../utils/match.js";
+import { calculateMatchFromEmbeddings } from "../../utils/match.js";
 import ApplicationModel, {
     type IApplication,
     type ApplicationStatus
@@ -31,11 +31,11 @@ export const CreateApplicationService = async (
     const resume = await ResumeModel.findById(input.resumeId);
     const job = await JobModel.findById(input.jobId);
 
-    if (!resume || !job) {
-        throw new Error("Resume or Job not found");
+    if (!resume?.embedding || !job?.embedding) {
+        throw new Error("Missing embeddings");
     }
 
-    const match = calculateMatchScore(resume.text, job.description);
+    const match = calculateMatchFromEmbeddings(resume.embedding, job.embedding);
 
 
     const application = await ApplicationModel.create({

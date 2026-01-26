@@ -1,5 +1,5 @@
-import type { createDeflate } from "node:zlib";
-import jobModel , { type IJob } from "./model.js"
+import { getEmbedding } from "../../utils/embeddings.js";
+import jobModel, { type IJob } from "./model.js"
 
 interface CreateJopInput {
     title: string;
@@ -19,11 +19,17 @@ interface JobFilters {
 export const createJobService = async (
     input: CreateJopInput
 ): Promise<IJob> => {
-    const existing = await jobModel.findOne({ applyUrl: input.applyUrl});
+    const existing = await jobModel.findOne({ applyUrl: input.applyUrl });
     if (existing) {
         return existing;
     }
-    return jobModel.create(input);
+
+    const embedding = await getEmbedding(input.description);
+
+    return jobModel.create({
+        ...input,
+        embedding,
+    });
 };
 
 export const getJobsService = async (
@@ -31,12 +37,12 @@ export const getJobsService = async (
 ): Promise<IJob[]> => {
     const query: any = {};
 
-    if(filters.keyword) {
-        query.title = { $regex: filters.keyword, $options: "i"};
+    if (filters.keyword) {
+        query.title = { $regex: filters.keyword, $options: "i" };
     }
 
-    if(filters.company) {
-        query.company = { $regex: filters.company, $options: "i"};
+    if (filters.company) {
+        query.company = { $regex: filters.company, $options: "i" };
     }
 
     return jobModel.find(query).sort({ createdAt: -1 });
