@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import UserModel, {type Iuser } from './modle.js';
+import { generateAccessToken, generateRefreshToken } from '../../utils/token.js';
 
 interface RegisterInput {
     name: string;
@@ -12,14 +12,6 @@ interface LoginInput {
     email: string;
     password: string;
 }
-
-const generateAccessToken = (userId: string): string => {
-    return jwt.sign({userId}, process.env.JWT_SECRET as string, {expiresIn: '1h'});
-};
-
-const generateRefreshToken = (userId: string): string => {
-    return jwt.sign({userId}, process.env.JWT_SECRET as string, {expiresIn: '7d'});
-};
 
 export const registerService = async (
     input: RegisterInput
@@ -38,8 +30,13 @@ export const registerService = async (
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = generateRefreshToken(user._id.toString());
 
+    user.refreshtoken = refreshToken;
+    await user.save();
+
     return { user, accessToken, refreshToken};
 };
+
+   
 
 export const loginService = async (
     input: LoginInput
@@ -59,6 +56,9 @@ export const loginService = async (
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = generateRefreshToken(user._id.toString());
 
+    user.refreshtoken = refreshToken;
+    await user.save();
+    
     return { user, accessToken, refreshToken};
 };
 

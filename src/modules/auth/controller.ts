@@ -20,8 +20,6 @@ export const registerController = async (
     });
 
     res.status(201).json({
-      accessToken,
-      refreshToken,
       user: {
         id: user._id,
         name: user.name,
