@@ -3,9 +3,11 @@ import { Types } from 'mongoose';
 import {
     CreateApplicationService,
     getUserApplicationsService,
-    UpdateApplicationStatusService
+    UpdateApplicationStatusService,
+    getApplicationStatsService
 } from './service.js';
 import { type ApplicationStatus } from './model.js';
+import { sendSuccess, sendError } from '../../utils/apiResponse.js';
 
 export const createApplicationController = async (
     req: Request,
@@ -15,7 +17,7 @@ export const createApplicationController = async (
         const { jobTitle, jobId, company, jobUrl, resumeId } = req.body;
 
         if (!jobTitle || !jobId || !company || !jobUrl || !resumeId) {
-            res.status(400).json({ message: "All fields are required" });
+            sendError(res, 400, "All fields are required");
             return;
         }
 
@@ -28,9 +30,9 @@ export const createApplicationController = async (
             resumeId
         });
 
-        res.status(201).json({ application });
+        sendSuccess(res, 201, "Application created successfully", { application });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        sendError(res, 500, error.message);
     }
 };
 
@@ -42,14 +44,14 @@ export const getUserApplicationsController = async (
         const userId = req.user?.id;
 
         if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return sendError(res, 401, "Unauthorized");
         }
 
         const applications = await getUserApplicationsService(userId);
 
-        return res.status(200).json(applications);
+        return sendSuccess(res, 200, "Applications retrieved successfully", applications);
     } catch (error) {
-        return res.status(500).json({ message: "Server error" });
+        return sendError(res, 500, "Server error");
     }
 };
 
@@ -62,12 +64,12 @@ export const updateApplicationStatusController = async (
         const { Id } = req.params;
 
         if (!status) {
-            res.status(400).json({ message: "Status is required" });
+            sendError(res, 400, "Status is required");
             return;
         }
 
         if(typeof Id !== 'string'){
-            res.status(400).json({ message: "Invalid application ID" });
+            sendError(res, 400, "Invalid application ID");
             return;
         }
         
@@ -77,12 +79,32 @@ export const updateApplicationStatusController = async (
         );
 
         if (!updated) {
-            res.status(404).json({ message: "Application not found" });
+            sendError(res, 404, "Application not found");
             return;
         }
 
-        res.json(updated);
+        sendSuccess(res, 200, "Application status updated successfully", updated);
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        sendError(res, 500, error.message);
     }
-}
+};
+
+export const getApplicationStatsController = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            sendError(res, 401, "Unauthorized");
+            return;
+        }
+
+        const stats = await getApplicationStatsService(userId);
+
+        sendSuccess(res, 200, "Application stats retrieved successfully", stats);
+    } catch (error: any) {
+        sendError(res, 500, error.message);
+    }
+};

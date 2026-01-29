@@ -72,3 +72,39 @@ export const UpdateApplicationStatusService = async (
     });
 };
 
+export interface ApplicationStats {
+    totalApplications: number;
+    interviews: number;
+    avgMatchScore: number;
+    thisWeek: number;
+}
+
+export const getApplicationStatsService = async (
+    userId: string
+): Promise<ApplicationStats> => {
+    const applications = await ApplicationModel.find({ userId });
+
+    const totalApplications = applications.length;
+    const interviews = applications.filter(app => app.status === "INTERVIEW").length;
+
+    const matchScores = applications
+        .map(app => app.matchScore)
+        .filter((score): score is number => score !== undefined && score !== null);
+    const avgMatchScore = matchScores.length > 0
+        ? Math.round(matchScores.reduce((sum, score) => sum + score, 0) / matchScores.length)
+        : 0;
+
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const thisWeek = applications.filter(app => 
+        app.createdAt && new Date(app.createdAt) >= oneWeekAgo
+    ).length;
+
+    return {
+        totalApplications,
+        interviews,
+        avgMatchScore,
+        thisWeek
+    };
+};
+

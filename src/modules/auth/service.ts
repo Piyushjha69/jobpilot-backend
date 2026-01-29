@@ -62,3 +62,37 @@ export const loginService = async (
     return { user, accessToken, refreshToken};
 };
 
+export const getUserProfileService = async (
+    userId: string
+): Promise<Iuser | null> => {
+    const user = await UserModel.findById(userId).select('-password -refreshtoken');
+    return user;
+};
+
+export const refreshTokenService = async (
+    refreshToken: string
+): Promise<{ accessToken: string; refreshToken: string }> => {
+    const jwt = await import('jsonwebtoken');
+    const { JWT_REFRESH_SECRET } = await import('../../config/env.js');
+    const { generateAccessToken, generateRefreshToken } = await import('../../utils/token.js');
+
+    try {
+        const decoded = jwt.default.verify(refreshToken, JWT_REFRESH_SECRET!) as { userId: string };
+        
+        const user = await UserModel.findById(decoded.userId);
+        if (!user || user.refreshtoken !== refreshToken) {
+            throw new Error('Invalid refresh token');
+        }
+
+        const newAccessToken = generateAccessToken(user._id.toString());
+        const newRefreshToken = generateRefreshToken(user._id.toString());
+
+        user.refreshtoken = newRefreshToken;
+        await user.save();
+
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    } catch (error) {
+        throw new Error('Invalid or expired refresh token');
+    }
+};
+

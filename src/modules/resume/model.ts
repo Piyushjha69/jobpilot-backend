@@ -21,8 +21,8 @@ const resumeSchema = new Schema<Iresume>({
     name: { type: String, required: true },
     text: { type: String, required: true },
     embedding: { type: [Number] },
-    email: { type: String, required: true, unique: true },
-    skills: { type: [String], required: true },
+    email: { type: String, default: "" },
+    skills: { type: [String], default: [] },
     experience: {
         type: [{ company: String, position: String, duration: String }],
         default: []
