@@ -13,6 +13,8 @@ router.get("/health", ( req, res ) => res.send({
     message: "Healthy"
 }) );
 
+app.use(router);
+
 app.listen(PORT, () =>{
     console.log(`Server running on port ${PORT}`);
 });
