@@ -6,8 +6,22 @@ import jobRouter from './modules/jobs/route.js';
 
 const router = Router();
 
-router.use('/applications', applicationRoutes);
+// Health check endpoint
+router.get('/health', (req, res) => {
+    res.status(200).json({
+        success: true,
+        statusCode: 200,
+        message: 'Server is healthy',
+        data: {
+            timestamp: new Date().toISOString()
+        }
+    });
+});
+
+// Module routes
 router.use('/auth', authRouter);
 router.use('/resume', resumeRouter);
 router.use('/jobs', jobRouter);
+router.use('/applications', applicationRoutes);
+
 export default router;
