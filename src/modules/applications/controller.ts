@@ -56,27 +56,27 @@ export const getUserApplicationsController = async (
 };
 
 export const updateApplicationStatusController = async (
-    req: Request,
-    res: Response
+     req: Request,
+     res: Response
 ): Promise<void> => {
-    try {
-        const { status } = req.body;
-        const { Id } = req.params;
+     try {
+         const { status } = req.body;
+         const { id } = req.params;
 
         if (!status) {
             sendError(res, 400, "Status is required");
             return;
         }
 
-        if(typeof Id !== 'string'){
-            sendError(res, 400, "Invalid application ID");
-            return;
-        }
-        
-        const updated = await UpdateApplicationStatusService(
-            Id,
-            status as ApplicationStatus
-        );
+        if(typeof id !== 'string'){
+             sendError(res, 400, "Invalid application ID");
+             return;
+         }
+         
+         const updated = await UpdateApplicationStatusService(
+             id,
+             status as ApplicationStatus
+         );
 
         if (!updated) {
             sendError(res, 404, "Application not found");
